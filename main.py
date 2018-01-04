@@ -11,6 +11,7 @@ class Bkjw:
 
     def __init__(self):
         self.session = requests.session()
+        self.std_info: Dict[str, str] = dict()
         self.islogedin = False
 
     # 要提交的键值对的一个结构
@@ -39,8 +40,10 @@ class Bkjw:
         if res.text.find(keywords["username"]) > 0:
             print('OK')
             self.islogedin = True
+            return True
         else:
             print("Session Create Error!")
+            return False
 
     def logout(self):
         self.session.get(self.sub_url_tab["url_logout"])
@@ -55,11 +58,16 @@ class Bkjw:
         # print(res.text)
 
         info_list = BeautifulSoup(res.content, 'html.parser').find_all('p')
-        # print(info_list[0])
-        # print(info_list[1])
+
         # 这里使用迭代器
         # for d in info_list:
         #     print(d)
+
+        #从冒号开始分隔数据
+        self.std_info['name'] = info_list[1].string.split(':')[1]
+        self.std_info['class'] = info_list[2].string.split(':')[1]
+        self.std_info['grade'] = info_list[3].string.split(':')[1]
+        self.std_info['term'] = info_list[4].string.split(':')[1]
 
         return info_list
 
@@ -96,8 +104,9 @@ def main():
 
     bkjw = Bkjw()
     bkjw.login(bkjw.root_url, bkjw.keywords)
-    bkjw.listout(bkjw.getinfo())
-    bkjw.getcourses(bkjw.term)
+    bkjw.getinfo()
+    print(bkjw.std_info["name"])
+    bkjw.getcourses(bkjw.std_info["term"])
 
 
 if __name__ == '__main__':
