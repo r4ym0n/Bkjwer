@@ -1,7 +1,9 @@
 # -*- coding:utf-8 -*-
 import requests
 from bs4 import BeautifulSoup
+import re
 
+TIMEOUT = 5
 
 class Bkjw:
     """
@@ -153,22 +155,29 @@ class Bkjw:
                 print(d)
         else:
             print('[-] None Type !')
-
-        '''
         
-    def elva_teaching(self, course_list):
+    def elva_teaching(self):
         """
             一键强制评教的实现
         """
-        payload = {
+        header, data = self.get_courses(self.std_info["term"])
+        cno = list()
+        cid = list()
+        for d in data:
+            cno.append(d[0])       # cno 课程序号
+            cid.append(d[1])       # cid 课程代码
+        print(cid)
+        print(cno)
 
-        }
-        for course in course_list:
-            payload[] = course.cid
-            payload[] = course.cno
-            self.session.post(self.root_url + self.sub_url_tab[], payload)
-            
-        '''
+        # payload = {
+        #
+        # }
+        # for course in course_list:
+        #     payload[] = course.cid
+        #     payload[] = course.cno
+        #     self.session.post(self.root_url + self.sub_url_tab[], payload)
+
+
 
 
 def connect_test():
@@ -190,6 +199,7 @@ def main():
         header, data = bkjw.get_courses(bkjw.std_info["term"])
         bkjw.list_out(header)
         bkjw.list_out(data)
+        bkjw.elva_teaching()
 
 
 if __name__ == '__main__':
