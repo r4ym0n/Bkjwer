@@ -13,6 +13,10 @@ class Bkjw:
         self.session = requests.session()
         self.std_info: Dict[str, str] = dict()
         self.islogedin = False
+        try:
+            requests.get(self.root_url, timeout=1)
+        except requests.exceptions.ConnectTimeout:
+            print("[-] Network Unreachable")
 
     # 要提交的键值对的一个结构
     keywords = {"username": "1500110428", "passwd": "529160", 'login': '%B5%C7%A1%A1%C2%BC'}
@@ -30,15 +34,19 @@ class Bkjw:
     }
 
     def login(self, url, keywords):
-
         # 以post的方式提交表单并保存结果在变量res中
-        res = self.session.post(url + self.sub_url_tab["url_login"], data=keywords)
-        print(res.reason)
+        try:
+            res = self.session.post(url + self.sub_url_tab["url_login"], data=keywords, json=None, timeout = 0.5)
+        #  这里对超时进行异常处理
+        except requests.exceptions.ConnectTimeout:
+            self.islogedin = False
+            print('[-] Connect Timeout!')
+            return
 
         res = self.session.get(url + self.sub_url_tab["url_info"])
         # 验证是否成功登陆
         if res.text.find(keywords["username"]) > 0:
-            print('OK')
+            print('[+] Logged in')
             self.islogedin = True
             return True
         else:
@@ -46,6 +54,9 @@ class Bkjw:
             return False
 
     def logout(self):
+        if not self.islogedin:
+            return
+
         self.session.get(self.sub_url_tab["url_logout"])
         self.session.close()
 
@@ -82,12 +93,19 @@ class Bkjw:
         # for d in courses_list:
         #     print(d)
 
-        # res = self.session.get("http://172.16.64.236/student/Selected.asp")
-        # print(res.text)
+        res = self.session.get(self.root_url + self.sub_url_tab["url_courses"])
+        print(res.text)
 
-    def listout(self, infoset):
-        for d in infoset:
-            print(d)
+    def listout(self, info_set):
+        """
+            这里用于列出爬到的set
+        """
+        
+        if info_set is not None:
+            for d in info_set:
+                print(d)
+        else:
+            print('[-] None Type !')
 
 
 def connect_test():
@@ -111,4 +129,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
 
