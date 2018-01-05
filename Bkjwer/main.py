@@ -25,11 +25,12 @@ class Bkjw:
 
     # 表单要提交到的子地址
     sub_url_tab = {
-        "url": "http://172.16.64.236/",
         "url_login": "student/public/login.asp",
         "url_info": "student/Info.asp",
         "url_logout": "student/public/logout.asp",
         "url_courses": "student/Selected.asp",
+        "url_elva": "",
+        
     }
 
     def login(self, url, keywords):
@@ -57,7 +58,7 @@ class Bkjw:
         self.session.get(self.sub_url_tab["url_logout"])
         self.session.close()
 
-    def getinfo(self):
+    def get_info(self):
         #如果没有登陆就返回
         if not self.islogedin:
             return
@@ -66,15 +67,13 @@ class Bkjw:
         # print(res.text)
 
         info_list = BeautifulSoup(res.content, 'html.parser').find_all('p')
-        # print(info_list[0])
-        # print(info_list[1])
         # 这里使用迭代器
         # for d in info_list:
         #     print(d)
 
         return info_list
 
-    def getcourses(self, payload):
+    def get_courses(self, payload):
         if not self.islogedin:
             return
 
@@ -92,12 +91,28 @@ class Bkjw:
         """
             这里用于列出爬到的set
         """
-        
+
         if info_set is not None:
             for d in info_set:
                 print(d)
         else:
             print('[-] None Type !')
+
+        '''
+        
+    def elva_teaching(self, course_list):
+        """
+            一键强制评教的实现
+        """
+        payload = {
+
+        }
+        for course in course_list:
+            payload[] = course.cid
+            payload[] = course.cno
+            self.session.post(self.root_url + self.sub_url_tab[], payload)
+            
+        '''
 
 
 def connect_test():
