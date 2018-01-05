@@ -129,8 +129,8 @@ def main():
 
     bkjw = Bkjw()
     bkjw.login(bkjw.root_url, bkjw.keywords)
-    bkjw.listout(bkjw.getinfo())
-    bkjw.getcourses(bkjw.term)
+    bkjw.listout(bkjw.get_info())
+    bkjw.get_courses(bkjw.term)
 
 
 if __name__ == '__main__':
