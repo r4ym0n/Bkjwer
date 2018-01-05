@@ -1,10 +1,9 @@
 # -*- coding:utf-8 -*-
 import requests
-import re # 正则模块
 from bs4 import BeautifulSoup
+import re
 
 TIMEOUT = 5
-
 
 class Bkjw:
     """
@@ -35,6 +34,8 @@ class Bkjw:
         "url_info": "student/Info.asp",
         "url_logout": "student/public/logout.asp",
         "url_courses": "student/Selected.asp",
+        "url_elva": "",
+        
     }
 
     def login(self, keywords):
@@ -75,6 +76,7 @@ class Bkjw:
         """
         if not self.islogedin:
             return
+
         self.session.get(self.sub_url_tab["url_logout"])
         self.session.close()
 
@@ -148,12 +150,34 @@ class Bkjw:
         这里用于列出爬到的set
         """
 
-        # 这里使用迭代器
         if info_set is not None:
             for d in info_set:
                 print(d)
         else:
             print('[-] None Type !')
+        
+    def elva_teaching(self):
+        """
+            一键强制评教的实现
+        """
+        header, data = self.get_courses(self.std_info["term"])
+        cno = list()
+        cid = list()
+        for d in data:
+            cno.append(d[0])       # cno 课程序号
+            cid.append(d[1])       # cid 课程代码
+        print(cid)
+        print(cno)
+
+        # payload = {
+        #
+        # }
+        # for course in course_list:
+        #     payload[] = course.cid
+        #     payload[] = course.cno
+        #     self.session.post(self.root_url + self.sub_url_tab[], payload)
+
+
 
 
 def connect_test():
@@ -175,6 +199,7 @@ def main():
         header, data = bkjw.get_courses(bkjw.std_info["term"])
         bkjw.list_out(header)
         bkjw.list_out(data)
+        bkjw.elva_teaching()
 
 
 if __name__ == '__main__':
