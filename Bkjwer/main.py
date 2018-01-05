@@ -159,7 +159,7 @@ class Bkjw:
         
     def elva_teaching(self):
         """
-            一键强制评教的实现
+        一键强制评教的实现
         """
         header, data = self.get_courses(self.std_info["term"])
         cno = list()
@@ -180,9 +180,10 @@ class Bkjw:
 
         # 设置内容类型 重要
         self.session.headers["Content-Type"] = "application/x-www-form-urlencoded"
-        for 
+        # 遍历已选课程评教
+        for i in range(len(cno)):
             res = self.session.post(self.root_url + self.sub_url_tab["url_elva"],
-                                    data=(payload + "cno=%s&term=%s&cid=%s" % ("1711451", "2017-2018_1", "BT020006111")))
+                                    data=(payload + "cno=%s&term=%s&cid=%s" % (cno[i], self.std_info['term'], cid[i])))
             page = BeautifulSoup(res.content, 'html.parser')
             if page.text.find("已提交") > 0:
                 print("[*] OK")
