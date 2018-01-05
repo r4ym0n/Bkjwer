@@ -165,7 +165,7 @@ def connect_test():
 
 
 def main():
-    print("hello world\n")
+    print("hello world")
     # connect_test()
 
     bkjw = Bkjw()
