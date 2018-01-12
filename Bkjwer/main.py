@@ -10,8 +10,7 @@ exit_msg = "\n[++] Shutting down ... Goodbye. ( ^_^)／\n"
 
 
 def main():
-    print("hello world")
-    # connect_test()
+    # print("hello world")
     cmd = Cmd0()
     try:
         while True:

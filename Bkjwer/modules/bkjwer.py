@@ -6,6 +6,7 @@ import re
 TIMEOUT = 3
 ATTEMPT = 5
 
+
 class Bkjw:
     """
     这个是Bkjw的类负责底层操作
@@ -19,6 +20,7 @@ class Bkjw:
         self.net_congestion = False
         self.NET_STATUES = False
         self.net_quality = 0
+        self.attempt = ATTEMPT
 
         net_qu = self.__net_test__()
 
@@ -29,8 +31,6 @@ class Bkjw:
                 self.net_congestion = True
         else:
             raise Network.connection("Network Unreachable!")
-
-        print(self.net_quality)
 
     # 要提交的键值对的一个结构
     keywords = {"username": "", "passwd": "", 'login': '%B5%C7%A1%A1%C2%BC'}
