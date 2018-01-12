@@ -17,6 +17,8 @@ class Cmd0:
         self.log_statue = False     # 登陆状态
         curr_time = time.strftime('%H:%M:%S', time.localtime(time.time()))
 
+        # print('\f')     # 翻新的一页
+
         print('\033[1;32m')
         print('*' * 50)
         print('*USR:\t', self.user_name)
@@ -30,7 +32,7 @@ class Cmd0:
 
     dbg_info = {"err": "\033[1;91m\n[!] %s \033[1;m",
                 "info": "\033[1;32m\n[+] %s \n\033[1;m",
-                "dbg":"\033[1;32m\n[*] %s \n\033[1;m"
+                "dbg": "\033[1;32m\n[*] %s \n\033[1;m"
     }
 
     def cmd_line(self):
@@ -54,12 +56,44 @@ class Cmd0:
         elif cmd_0 == "elva":  # elva_teaching
             self.__elva_teaching__()
 
+        elif cmd_0 == "logout":
+            self.__logout__()
+
+        elif cmd_0 == "who":
+            self.__who__()
+
         else:
             print("\033[1;91m\n[!] Error : Command not found.\033[1;m")
 
+    @staticmethod
+    def __help__():
+        print("")
+        table_datas = [
+            ["\033[1;36m\nMODULES\n", """
+          login       :  user login
+          logout      :  user logout
+          who         :  show Current user
+          help        :  show this list
+          listC       :  List selected courses
+          exit        :  Exit Current Program
+          \033[1;m"""]
+        ]
+        table = DoubleTable(table_datas)
+        print(table.table)
+
+    def __who__(self):
+        if not self.__check_log_statue__():
+            return
+        print(self.bkjw.std_info["name"])
+
     def __listC__(self):
-        if self.log_statue is False:
-            print(self.dbg_info["err"] % "login First!")
+        """
+        列出当前所选所有课程
+        :return:
+        """
+        if not self.__check_log_statue__():
+            return
+
         header, data, tab = self.bkjw.get_courses(self.bkjw.std_info["term"])
 
         # table = DoubleTable("[" + tmp) 这里也想打印表，可是实在搞不来 求PR
@@ -68,22 +102,9 @@ class Cmd0:
         print(str(tab).replace("], [", "\n").strip("[").strip("]"))
 
     def __elva_teaching__(self):
+        if not self.__check_log_statue__():
+            return
         self.bkjw.elva_teaching()       # 这里一键评教
-
-    @staticmethod
-    def __help__():
-        print("")
-        table_datas = [
-            ["\033[1;36m\nMODULES\n", """
-        login       :  user login
-        help        :  show this list
-        listC       :  List selected courses
-        exit        :  Exit Current Program
-         
-        \033[1;m"""]
-        ]
-        table = DoubleTable(table_datas)
-        print(table.table)
 
     def __login__(self):
         # 输密码
@@ -101,3 +122,24 @@ class Cmd0:
         if self.log_statue is True:
             self.bkjw.get_info()
             print(self.dbg_info["info"] % "Hello" + self.bkjw.std_info["name"])
+
+    def __logout__(self):
+        """
+        登出
+        :return:None
+        """
+        if not self.__check_log_statue__():
+            return
+        print(self.dbg_info["info"] % "bye~bye")
+        self.bkjw.logout()
+        self.log_statue = False
+
+    def __check_log_statue__(self):
+        """
+        登陆状态检测
+        :return: 返回 BOOL
+        """
+        if self.log_statue is False:
+            print(self.dbg_info["err"] % "login First!")
+            return False
+        return True

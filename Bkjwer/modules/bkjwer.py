@@ -14,19 +14,22 @@ class Bkjw:
         self.root_url = "http://172.16.64.236/"
         self.session = requests.session()
         self.std_info: Dict[str, str] = dict()
+
         self.islogedin = False
         self.net_congestion = False
         self.NET_STATUES = False
         self.net_quality = 0
 
         net_qu = self.__net_test__()
+
         if net_qu > 0:
             # 检测是否网络可达
             self.NET_STATUES = True
-        elif net_qu < ATTEMPT-1:
-            self.net_congestion = True
+            if net_qu < ATTEMPT - 1:
+                self.net_congestion = True
+        else:
+            raise Network.connection("Network Unreachable!")
 
-        print(self.net_congestion)
         print(self.net_quality)
 
     # 要提交的键值对的一个结构
@@ -83,7 +86,7 @@ class Bkjw:
         if not self.islogedin:
             return
 
-        self.session.get(self.sub_url_tab["url_logout"])
+        self.session.get(self.root_url + self.sub_url_tab["url_logout"])
         self.session.close()
 
     def get_info(self):
@@ -167,7 +170,7 @@ class Bkjw:
         """
         一键强制评教的实现
         """
-        header, data = self.get_courses(self.std_info["term"])
+        header, data, tab = self.get_courses(self.std_info["term"])
         cno = list()
         cid = list()
         for d in data:
@@ -225,18 +228,4 @@ class Bkjw:
         for th in th_list:
             th.join()
         return self.net_quality
-
-
-
-
-
-
-
-
-def connect_test():
-    request_header = {}
-
-    res = requests.get("http://www.baidu.com")
-    print(res.reason)
-    print(res.headers)
 
