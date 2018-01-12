@@ -4,8 +4,9 @@ import sys
 import traceback
 
 sys.path.append('./modules')
-from bkjwer import Bkjw
 from usrshl import Cmd0
+
+exit_msg = "\n[++] Shutting down ... Goodbye. ( ^_^)／\n"
 
 
 def main():

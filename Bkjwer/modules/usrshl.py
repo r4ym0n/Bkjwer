@@ -3,7 +3,6 @@ import getpass
 import time
 from terminaltables import DoubleTable
 
-sys.path.append('./')
 from bkjwer import Bkjw
 
 exit_msg = "\n[++] Shutting down ... Goodbye. ( ^_^)／\n"
@@ -33,6 +32,7 @@ class Cmd0:
                 "info": "\033[1;32m\n[+] %s \n\033[1;m",
                 "dbg":"\033[1;32m\n[*] %s \n\033[1;m"
     }
+
     def cmd_line(self):
         """
         交互命令
@@ -65,7 +65,7 @@ class Cmd0:
         # table = DoubleTable("[" + tmp) 这里也想打印表，可是实在搞不来 求PR
         # print(table.table)
         # 投机取巧，以这种既不美好的方式结束战斗。。。
-        print(str(tab).replace("], [", "\n"))
+        print(str(tab).replace("], [", "\n").strip("[").strip("]"))
 
     def __elva_teaching__(self):
         self.bkjw.elva_teaching()       # 这里一键评教
@@ -77,8 +77,10 @@ class Cmd0:
             ["\033[1;36m\nMODULES\n", """
         login       :  user login
         help        :  show this list
-        ping        :  Ping Request
-        deface      :  Overwrite all web pages with your HTML code\033[1;m"""]
+        listC       :  List selected courses
+        exit        :  Exit Current Program
+         
+        \033[1;m"""]
         ]
         table = DoubleTable(table_datas)
         print(table.table)
@@ -93,7 +95,7 @@ class Cmd0:
             return
         self.bkjw.keywords["username"] = uname
         self.bkjw.keywords["passwd"] = passwd
-        print(self.bkjw.keywords)
+        # print(self.bkjw.keywords)
         # bkjw 登陆，保存状态
         self.log_statue = self.bkjw.login(self.bkjw.keywords)
         if self.log_statue is True:
