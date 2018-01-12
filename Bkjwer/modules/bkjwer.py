@@ -53,14 +53,19 @@ class Bkjw:
         :return: BOOL 是否成功
         """
         if self.NET_STATUES is False:
-            return
+            return False
 
-        # 以post的方式提交表单并保存结果在变量res中
-        #
-        # print(self.root_url + self.sub_url_tab["url_login"])
+        def http_req():
+            # 以post的方式提交表单并保存结果在变量res中
+            return self.session.post(self.root_url + self.sub_url_tab["url_login"],
+                                     data=keywords, json=None, timeout=TIMEOUT)
         try:
-            res = self.session.post(self.root_url + self.sub_url_tab["url_login"],
-                                    data=keywords, json=None,timeout=TIMEOUT)
+            # 是否网络拥塞
+            if self.net_congestion is True:
+                self.__multi_th__(http_req)
+            else:
+                res = http_req()
+
         # 这里对超时进行异常处理
         except requests.exceptions.ConnectTimeout:
             self.islogedin = False
@@ -71,7 +76,7 @@ class Bkjw:
         # 验证是否成功登陆
         if res.text.find(keywords["username"]) > 0:
             print('[+] Logged in')
-            print(self.session.cookies)
+            # print(self.session.cookies)
             self.islogedin = True
             return True
         else:
@@ -98,7 +103,16 @@ class Bkjw:
         if not self.islogedin:
             return
 
-        res = self.session.get(self.root_url + self.sub_url_tab["url_info"])
+        def http_req():
+            return self.session.get(self.root_url + self.sub_url_tab["url_info"])
+
+        res = str()
+        # 是否网络拥塞
+        if self.net_congestion is True:
+            self.__multi_th__(http_req)
+        else:
+            res = http_req()
+
         info_list = BeautifulSoup(res.content, 'html.parser').find_all('p')
 
         #从冒号开始分隔数据
@@ -236,3 +250,22 @@ class Bkjw:
             th.join()
         return self.net_quality
 
+    @staticmethod
+    def __multi_th__(func):
+        """
+        在网络拥塞时候用于执行多线程的请求
+        :param func: 请求函数
+        :return:
+        """
+        th_list = list()
+        res = str()
+        for i in range(ATTEMPT):
+            t = threading.Thread(target=func)  # 连接尝试线程
+            t.setDaemon(True)
+
+            t.start()
+            th_list.append(t)
+
+        for th in th_list:
+            res = th.join()
+        return res
