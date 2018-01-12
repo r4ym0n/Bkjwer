@@ -1,6 +1,7 @@
 import sys
 import getpass
 import time
+import re
 from terminaltables import DoubleTable
 
 from bkjwer import Bkjw
@@ -22,7 +23,17 @@ class Cmd0:
         print('\033[1;32m')
         print('*' * 50)
         print('*USR:\t', self.user_name)
-        # print('*URI:\t', 'http://127.0.0.1')
+
+        net_q = self.bkjw.net_quality
+        if net_q > 0:
+            if net_q == self.bkjw.attempt:
+                net_rank = "Good"
+            else:
+                net_rank = "OK"
+        else:
+            net_rank = "Bad"
+
+        print('*NET:\t', self.bkjw.net_quality, "\t", net_rank)
         print('*TIME:\t', curr_time)
         print('*' * 50)
         print('\033[1;m')
@@ -62,6 +73,9 @@ class Cmd0:
         elif cmd_0 == "who":
             self.__who__()
 
+        elif cmd_0 == "term":
+            self.__set_term__()
+
         else:
             print("\033[1;91m\n[!] Error : Command not found.\033[1;m")
 
@@ -73,6 +87,7 @@ class Cmd0:
           login       :  user login
           logout      :  user logout
           who         :  show Current user
+          tern        :  show and set Current term
           help        :  show this list
           listC       :  List selected courses
           exit        :  Exit Current Program
@@ -85,6 +100,8 @@ class Cmd0:
         if not self.__check_log_statue__():
             return
         print(self.bkjw.std_info["name"])
+        print(self.bkjw.std_info["class"])
+        print(self.bkjw.std_info["grade"])
 
     def __listC__(self):
         """
@@ -106,8 +123,28 @@ class Cmd0:
             return
         self.bkjw.elva_teaching()       # 这里一键评教
 
+    def __set_term__(self):
+        if not self.__check_log_statue__():
+            return
+        print(self.dbg_info["dbg"] % "Current term:" + self.bkjw.std_info["term"])
+        qus = input("\033[1;32m\n[*] %s\t\033[1;m" % "New Term? [y/n]:")
+
+        if 'y' in qus or 'Y' in qus:
+            n_term = input(self.dbg_info["dbg"] % "Set Term:\t")
+
+            check_regex = re.compile("\d+-\d+_[12]")
+            if check_regex.match(n_term) is None:
+                print(self.dbg_info["err"] % '学期格式不正确，正确的示例：2017-2018_1，意为2017年到2018年上学期')
+            else:
+                self.bkjw.std_info["term"] = n_term
+        else:
+            pass
+
     def __login__(self):
         # 输密码
+        if self.log_statue is True:
+            print(self.dbg_info["err"] % "Already Logged in!")
+
         uname = input("\033[1;32m\n[*] Username:\t\033[1;m")
         passwd = input("\033[1;32m\n[*] Password:\t\033[1;m")
 
