@@ -1,9 +1,11 @@
 import requests
+import threading
+import time
 from bs4 import BeautifulSoup
 import re
 
-TIMEOUT = 5
-
+TIMEOUT = 3
+ATTEMPT = 5
 
 class Bkjw:
     """
@@ -14,15 +16,19 @@ class Bkjw:
         self.session = requests.session()
         self.std_info: Dict[str, str] = dict()
         self.islogedin = False
+        self.net_congestion = False
         self.NET_STATUES = False
-        # 检测是否网络可达
-        try:
-            requests.get(self.root_url, timeout=TIMEOUT)
-        except requests.exceptions.ConnectTimeout:
-            print("[-] Network Unreachable")
-            self.NET_STATUES = False
-            return
-        self.NET_STATUES = True
+        self.net_quality = 0
+
+        net_qu = self.__net_test__()
+        if net_qu > 0:
+            # 检测是否网络可达
+            self.NET_STATUES = True
+        elif net_qu < ATTEMPT-1:
+            self.net_congestion = True
+
+        print(self.net_congestion)
+        print(self.net_quality)
 
     # 要提交的键值对的一个结构
     keywords = {"username": "", "passwd": "", 'login': '%B5%C7%A1%A1%C2%BC'}
@@ -189,6 +195,43 @@ class Bkjw:
             if page.text.find("已提交") > 0:
                 print("[*] OK")
         self.session.headers.clear()
+
+    def __net_test__(self):
+        """
+        建立多个线程发生请求，根据其正常返回数量，判断网络质量（服务器状态）
+        从而后面使用繁忙模式
+        :return: 质量等级
+        """
+        def conn_try(self):
+            # print('the curent threading  %s is running' % threading.current_thread().getName())
+            try:
+                res = requests.get(self.root_url, timeout=TIMEOUT)
+            except Exception:
+                # print("error")
+                return
+            # 根据返回值判断
+            if res.status_code == 200:
+                self.net_quality += 1
+
+            # print('the curent threading  %s is ended' % threading.current_thread().name)
+
+        th_list = list()
+        for i in range(ATTEMPT):
+            # 连接尝试线程
+            t = threading.Thread(target=conn_try(self))
+            t.setDaemon(True)
+            t.start()
+            th_list.append(t)
+
+        for th in th_list:
+            th.join()
+        return self.net_quality
+
+
+
+
+
+
 
 
 def connect_test():
